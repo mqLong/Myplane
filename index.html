@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #view {
+            width: 480px;
+            height: 853px;
+            background-image: url("img/bg.jpg");
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        #myplan {
+            position: absolute;
+            width: 60px;
+            height: 50px;
+        }
+
+        #myplan img {
+            width: 60px;
+            height: 50px;
+        }
+
+        #zhezhao {
+            margin: 0 auto;
+            position: absolute;
+            z-index: 100;
+            text-align: center;
+            color: #fff;
+            background-color: #000;
+            width: 480px;
+            height: 853px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <audio src="http://music.163.com/song/media/outer/url?id=31719145.mp3" autoplay id="bgMusic" hidden></audio>
+    <audio src="MP3/biu.mp3" autoplay loop id="biu" hidden></audio>
+    <audio src="MP3/boom.mp3"  id="boom" hidden></audio>
+    <audio src="MP3/die.mp3"  id="die" hidden></audio>
+
+    <div id="view">
+        <div id="zhezhao">
+            <h1 style="margin-top: 300px;">胜败乃兵家常事</h1>
+            <h1>请大侠重新来过</h1>
+        </div>
+    </div>
+
+    <script>
+        var myplan = document.createElement('div');
+        myplan.id = "myplan";
+        myplan.innerHTML = '<img src="img/me.png" alt="">';
+        document.body.appendChild(myplan);
+
+        var myfeiji = document.getElementById("myplan");
+        var container = document.getElementById("view");
+
+
+        // 设置我方飞机的初始位置
+        myfeiji.style.top = "753px";
+        myfeiji.style.left = view.offsetLeft + "px";
+
+        // 让飞机跟随鼠标
+        document.addEventListener("mousemove", function (e) {
+
+            // console.log(e)
+            var mouseX = e.clientX - 30;
+            var mouseY = e.clientY - 25;
+            // 确定鼠标在范围之内
+            var Xposi = mouseX > view.offsetLeft && mouseX < view.offsetLeft + 480 - 49;
+            var Yposi = mouseY > view.offsetTop && mouseY < view.offsetTop + 853 - 61;
+
+            if (Xposi && Yposi) {
+                myfeiji.style.top = mouseY + "px";
+                myfeiji.style.left = mouseX + "px";
+            }
+        })
+
+        // 子弹的配置
+        var ojbBullet = {
+            name: "bullet",
+            num: 0,
+            width: 32,
+            height: 64,
+            path: "img/cartridge.png"
+        }
+
+        var BullArr = [];
+        var direnArr = [];
+        // 创建子弹
+        createB(ojbBullet);
+
+        function createB(ojbB) {
+            setInterval(() => {
+                var bullet = document.createElement("div");
+                bullet.id = ojbB.name + ojbB.num;
+                bullet.style.width = ojbB.width + "px";
+                bullet.style.height = ojbB.height + "px";
+                bullet.style.backgroundImage = "url(" + ojbB.path + ")";
+                bullet.style.position = "absolute";
+                bullet.style.top = parseInt(myfeiji.offsetTop) + "px";
+                bullet.style.left = parseInt(myfeiji.offsetLeft + 14) + "px";
+                BullArr.push([ojbB.name + ojbB.num, parseInt(myfeiji.offsetTop), parseInt(myfeiji.offsetLeft) +
+                    21
+                ]);
+                ojbBullet.num++;
+                document.body.appendChild(bullet);
+            }, 200);
+        }
+
+        // 子弹运动
+        function Bmove() {
+            for (let i = 0; i < BullArr.length; i++) {
+                if (BullArr[i][0]) {
+                    var bulletEle = document.getElementById(BullArr[i][0]);
+                    // console.log(bulletEle)
+                    bulletEle.style.top = BullArr[i][1] - 10 + "px";
+                    BullArr[i] = [BullArr[i][0], BullArr[i][1] - 10, BullArr[i][2]]
+
+                    // 删除飞出边界的元素
+                    if (BullArr[i][1] < 0) {
+                        BullArr.splice(i, 1);
+                        bulletEle.parentNode.removeChild(bulletEle);
+                    }
+                }
+            }
+        }
+
+        // 敌人的配置
+        var ojbDR = {
+            name: "diren",
+            num: 0,
+            width: 54,
+            height: 40,
+            path: "img/diren.png"
+        }
+        // 创建敌人
+        createDR(ojbDR);
+
+        function createDR(ojbDR) {
+            setInterval(() => {
+                var diji = document.createElement("div");
+                diji.id = ojbDR.name + ojbDR.num;
+                diji.style.width = ojbDR.width + "px";
+                diji.style.height = ojbDR.height + "px";
+                diji.style.backgroundImage = "url(" + ojbDR.path + ")";
+                diji.style.position = "absolute";
+                diji.style.top = 0;
+                var DRLeft = parseInt(container.offsetLeft) + 445 * Math.random();
+                diji.style.left = DRLeft + "px";
+                direnArr.push([ojbDR.name + ojbDR.num, 0, DRLeft]);
+                ojbDR.num++;
+                document.body.appendChild(diji);
+            }, 500);
+        }
+
+        // 敌人运动
+        function DRmove() {
+            for (var i = 0; i < direnArr.length; i++) {
+                if (direnArr[i][0]) {
+                    var diren = document.getElementById(direnArr[i][0]);
+                    diren.style.top = direnArr[i][1] + 1 + "px";
+                    direnArr[i] = [direnArr[i][0], direnArr[i][1] + 2, direnArr[i][2]]
+                }
+                // 删除飞出边界的元素
+                if (direnArr[i][1] > 823) {
+                    var removeP = document.getElementById(direnArr[i][0])
+                    direnArr.splice(i, 1);
+                    removeP.parentNode.removeChild(removeP)
+                }
+            }
+        }
+
+
+        console.log(BullArr);
+        console.log(direnArr)
+
+
+        //检测碰撞
+        function pengzhuang() {
+
+            for (let i = 0; i < direnArr.length; i++) {
+                // 敌机的位置X Y
+                var direnXStart = direnArr[i][2];
+                var direnXEnd = direnArr[i][2] + 50;
+                var direnY = direnArr[i][1] + 46;
+
+                // 我方飞机的位置
+                var myXStart = myfeiji.offsetLeft;
+                var myXEnd = myfeiji.offsetLeft + 60;
+                var myY = myfeiji.offsetTop;
+
+                //碰撞条件
+                var MyDieX = myXStart < direnXEnd && myXEnd > direnXStart;
+                var MyDieY = myY < direnY && myY > direnY - 60;
+
+                if (MyDieX && MyDieY) {
+                    document.getElementById("zhezhao").style.display = "block";
+                    clearInterval(init);
+                    document.getElementById("biu").pause();
+                    document.getElementById("bgMusic").pause();
+                    document.getElementById("die").play();
+
+                }
+
+                // 子弹位置X Y
+                for (let j = 0; j < BullArr.length; j++) {
+                    var zidanX = BullArr[j][2] + 15;
+                    var zidanY = BullArr[j][1];
+                    // 碰撞的条件
+                    var XTouch = zidanX > direnXStart && zidanX < direnXEnd
+                    var YTouch = zidanY < direnY + 55 && zidanY > direnY;
+                    // 假如碰撞了
+                    if (XTouch && YTouch) {
+                        var RemoveDiRen = document.getElementById(direnArr[i][0]);
+                        RemoveDiRen.parentNode.removeChild(RemoveDiRen);
+                        direnArr.splice(i, 1);
+
+                        var RemoveZiDan = document.getElementById(BullArr[j][0]);
+                        RemoveZiDan.parentNode.removeChild(RemoveZiDan);
+                        BullArr.splice(j, 1);
+
+                        document.getElementById("boom").play();
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+        // 启动各种运动
+        var init = setInterval(() => {
+            Bmove();
+            DRmove();
+            pengzhuang();
+        }, 16)
+    </script>
+</body>
+
+</html>
